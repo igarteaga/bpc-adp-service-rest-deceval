@@ -9,11 +9,14 @@ import co.com.pichincha.servicios.deceval.model.DecevalRequest;
 import co.com.pichincha.servicios.deceval.model.DecevalResponse;
 import co.com.pichincha.servicios.deceval.model.FlowRequest;
 import co.com.pichincha.servicios.deceval.model.FlowVariables;
+import co.com.pichincha.servicios.deceval.model.OtpRequest;
+import co.com.pichincha.servicios.deceval.model.OtpResponse;
 import co.com.pichincha.servicios.deceval.model.PromissoryNoteResponse;
 import co.com.pichincha.servicios.deceval.model.PromissoryNoteVariable;
 import co.com.pichincha.servicios.deceval.model.SpinnerResponse;
 import co.com.pichincha.servicios.deceval.model.SpinnerVariable;
 import co.com.pichincha.servicios.deceval.service.DecevalService;
+import co.com.pichincha.servicios.deceval.service.OtpService;
 import co.com.pichincha.servicios.deceval.service.PromissoryNoteService;
 import co.com.pichincha.servicios.deceval.service.SpinnerService;
 import java.text.SimpleDateFormat;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+
 /**
  *
  * @author julgue221
@@ -32,61 +36,61 @@ import org.springframework.stereotype.Service;
 public class DecevalServiceImpl implements DecevalService {
 
     //Parametros de configuración servicio Crear Girador (Spinner)
-    @Value("${spinner.FlowId}")
+    @Value("${spinner.flowId}")
     int spinnerFlowId;
-    @Value("${spinner.User}")
+    @Value("${spinner.user}")
     String spinnerUser;
-    @Value("${spinner.Password}")
+    @Value("${spinner.password}")
     String spinnerPassword;
-    @Value("${spinner.Aplication}")
+    @Value("${spinner.aplication}")
     String spinnerAplication;
-    @Value("${spinner.ExecutionId}")
+    @Value("${spinner.executionId}")
     short spinnerExecutionId;
-    @Value("${spinner.Activity}")
+    @Value("${spinner.activity}")
     short spinnerActivity;
-    @Value("${spinner.Section}")
+    @Value("${spinner.section}")
     String spinnerSection;
 
     //Parametros de configuración servicio Crear Pagare (PromissoryNote)
-    @Value("${promissoryNote.FlowId}")
+    @Value("${promissoryNote.flowId}")
     int promissoryNoteFlowId;
-    @Value("${promissoryNote.User}")
+    @Value("${promissoryNote.user}")
     String promissoryNoteUser;
-    @Value("${promissoryNote.Password}")
+    @Value("${promissoryNote.password}")
     String promissoryNotePassword;
-    @Value("${promissoryNote.Aplication}")
+    @Value("${promissoryNote.aplication}")
     String promissoryNoteAplication;
-    @Value("${promissoryNote.ExecutionId}")
+    @Value("${promissoryNote.executionId}")
     short promissoryNoteExecutionId;
-    @Value("${promissoryNote.Activity}")
+    @Value("${promissoryNote.activity}")
     short promissoryNoteActivity;
-    @Value("${promissoryNote.Section}")
+    @Value("${promissoryNote.section}")
     String promissoryNoteSection;
 
     //Parametros fijos servicio Crear Pagare (PromissoryNote)
-    @Value("${promissoryNote.ClassDefinitionDocument}")
+    @Value("${promissoryNote.classDefinitionDocument}")
     int promissoryNoteClassDefinitionDocument;
-    @Value("${promissoryNote.TypeIWillPay}")
+    @Value("${promissoryNote.typeIWillPay}")
     short promissoryNoteTypeIWillPay;
-    @Value("${promissoryNote.RefundableCredit}")
+    @Value("${promissoryNote.refundableCredit}")
     short promissoryNoteRefundableCredit;
-    @Value("${promissoryNote.ValuePesosDisbursement}")
+    @Value("${promissoryNote.valuePesosDisbursement}")
     short promissoryNoteValuePesosDisbursement;
-    @Value("${promissoryNote.InterestRate}")
+    @Value("${promissoryNote.interestRate}")
     short promissoryNoteInterestRate;
-    @Value("${promissoryNote.NumberInstallments}")
+    @Value("${promissoryNote.numberInstallments}")
     short promissoryNoteNumberInstallments;
-    @Value("${promissoryNote.ResponseMsm}")
+    @Value("${promissoryNote.responseMsm}")
     String promissoryNoteResponseMsm;
-    @Value("${promissoryNote.SafeLife}")
+    @Value("${promissoryNote.safeLife}")
     String promissoryNoteSafeLife;
-    @Value("${promissoryNote.Content}")
+    @Value("${promissoryNote.content}")
     String promissoryNoteContent;
-    @Value("${promissoryNote.FileName}")
+    @Value("${promissoryNote.fileName}")
     String promissoryNoteFileName;
-    @Value("${promissoryNote.Country}")
+    @Value("${promissoryNote.country}")
     String promissoryNoteCountry;
-
+    
     //Url del servicio de experian
     @Value("${service.url.experian}")
     String urlService;
@@ -100,13 +104,16 @@ public class DecevalServiceImpl implements DecevalService {
 
     @Autowired
     PromissoryNoteService promissoryNoteService;
+    
+    @Autowired
+    OtpService otpService;
 
     public DecevalResponse decevalCreate(DecevalRequest request) throws Exception {
         DecevalResponse decevalResponse = new DecevalResponse();
         PromissoryNoteResponse noteResponse = null;
         FlowRequest flowRequest = this.MapingFlowRequestSpinner(request);
         SpinnerResponse spinnerResponse = spinnerService.CreateSpinner(flowRequest);
-
+        
         String msmError = null;
         if (spinnerResponse != null) {
             if (spinnerResponse.getError() != null && !spinnerResponse.getError().equals("")) {
@@ -126,7 +133,6 @@ public class DecevalServiceImpl implements DecevalService {
             } else {
                 decevalResponse.setIdPromissoryNote(noteResponse.getIdPromissoryNote());
                 decevalResponse.setSpinnerNumber(spinnerResponse.getSpinnerNumber());
-                decevalResponse.setResult("OK");
             }
         } else {
             msmError = msmError == null || msmError.equals("") ? "Service response promissory note invalid" : msmError;
@@ -134,6 +140,22 @@ public class DecevalServiceImpl implements DecevalService {
 
         if (msmError == null || msmError.equals("")) {
             // Consumir servicio OTP
+            OtpRequest otpRequest = new OtpRequest();
+            otpRequest.setCellPhone(request.getCellPhone());
+            otpRequest.setEmail(request.getEmail());
+            otpRequest.setFullName(request.getNames());
+            otpRequest.setId(request.getId());
+            OtpResponse otpResponse = otpService.sendOtp(otpRequest);
+            if (otpResponse != null) {
+                if ((otpResponse.getError() == null || otpResponse.getError().equals("")) && otpResponse.isSuccessful()) {
+                    //Guardar respuesta correcta
+                    decevalResponse.setResult("OK");
+                } else {
+                    decevalResponse.setResult(otpResponse.getError());
+                }
+            } else {
+                decevalResponse.setResult("Service response otp invalid");
+            }
         } else {
             decevalResponse.setResult(msmError);
         }
@@ -210,7 +232,7 @@ public class DecevalServiceImpl implements DecevalService {
             variable.setIdClaseDefinicionDocumento(promissoryNoteClassDefinitionDocument);
             variable.setFechaGrabacionPagare(now);
             variable.setTipoPagare(promissoryNoteTypeIWillPay);
-            variable.setNumPagareEntidad(decevalRequest.getToken());
+            variable.setNumPagareEntidad(decevalRequest.getRequestNumber());
             variable.setFechaDesembolso(now);
             variable.setOtorganteTipoId(decevalRequest.getIdType());
             variable.setOtorganteNumId(decevalRequest.getId());

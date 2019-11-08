@@ -57,14 +57,14 @@ public class DecevalRequest {
     
     private String timeService;
       
-    private String token;
+    private String requestNumber;
     
-    public String getToken() {
-        return token;
+    public String getRequestNumber() {
+        return requestNumber;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setRequestNumber(String requestNumber) {
+        this.requestNumber = requestNumber;
     }
     public String getEmail() {
         return email;

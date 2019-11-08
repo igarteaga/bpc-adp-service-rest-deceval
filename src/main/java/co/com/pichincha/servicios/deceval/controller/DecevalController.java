@@ -27,17 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin("*")
 public class DecevalController {
-    
-     @Autowired
-     DecevalService decevalService;
+
+    @Autowired
+    DecevalService decevalService;
 
     @GetMapping("/health")
     @ResponseBody
     public Boolean health() {
         return true;
     }
-    
-    @PostMapping(value = "/sign/validate")
+
+    @PostMapping(value = "/sign/generate")
     public ResponseEntity<DecevalResponse> DecevalCreate(@RequestBody DecevalRequest request) {
         DecevalResponse decevalResponse = new DecevalResponse();
         try {
@@ -58,7 +58,7 @@ public class DecevalController {
             return new ResponseEntity(decevalResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     private boolean ValidateDecevalFields(DecevalRequest request) {
         if (request == null) {
             return false;

@@ -8,11 +8,11 @@
         <version>2.1.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>co.com.pichincha.servicios.deceval</groupId>
+    <groupId>co.com.pichincha</groupId>
     <artifactId>bpc-adp-service-rest-deceval</artifactId>
     <version>0.0.1</version>
     <name>bpc-adp-service-rest-deceval</name>
-    <description>Consumo servicios experian</description>
+    <description>Consumo servicios deceval</description>
 
     <properties>
         <java.version>1.8</java.version>
