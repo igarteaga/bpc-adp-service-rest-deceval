@@ -50,7 +50,7 @@ public class DecevalController {
             if (decevalResponse != null && decevalResponse.getResult().equals("OK")) {
                 return new ResponseEntity(decevalResponse, HttpStatus.OK);
             } else {
-                return new ResponseEntity(decevalResponse, HttpStatus.NOT_ACCEPTABLE);
+                return new ResponseEntity(decevalResponse, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage());
@@ -79,7 +79,55 @@ public class DecevalController {
         if (request.getFirstLastName() == null || request.getFirstLastName().equals("")) {
             return false;
         }
+        
+        if (request.getEmail() == null || request.getEmail().equals("")) {
+            return false;
+        }
+        
+        if (request.getCellPhone()== null || request.getCellPhone().equals("")) {
+            return false;
+        }
+        
+        if (request.getRequestNumber()== null || request.getRequestNumber().equals("")) {
+            return false;
+        }
+        
+        if (request.getCountryAddress()== null || request.getCountryAddress().equals("")) {
+            return false;
+        }
+        
+        if (request.getExpeditionDate() == null || request.getExpeditionDate().equals("")) {
+            return false;
+        }
+        
+        if (request.getBirthDate() == null || request.getBirthDate().equals("")) {
+            return false;
+        }
+        
+        if (request.getCityAddress() > 0) {
+            return false;
+        }
+        
+        if (request.getPersonId() > 0) {
+            return false;
+        }
 
+        if(request.getDepartmentAddress()> 0) {
+            return false;
+        }
+        
+        if(request.getDepartmentExpedition()> 0) {
+            return false;
+        }
+        
+        if(request.getCountryExpedition() == null || request.getCountryExpedition().equals("")) {
+            return false;
+        }
+        
+        if(request.getCountryNationality() == null || request.getCountryNationality().equals("")) {
+            return false;
+        }
+        
         return true;
     }
 }

@@ -59,7 +59,7 @@ public class HttpsServiceImpl implements HttpsService {
     private HttpClient initCustomSSL() {
         try {
             KeyStore keyStore = KeyStore.getInstance(sslType);
-            Path p = Paths.get("").toAbsolutePath().resolve(sslStore);
+            Path p = Paths.get("").toRealPath().resolve(sslStore);
             keyStore.load(new FileInputStream(p.toFile()), sslStorepass.toCharArray());
             SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
                     new SSLContextBuilder().loadTrustMaterial(keyStore, new TrustSelfSignedStrategy())
