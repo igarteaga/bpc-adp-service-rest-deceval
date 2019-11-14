@@ -12,9 +12,19 @@ package co.com.pichincha.servicios.deceval.model;
 public class OtpResponse {
 
     private String error;
-    
+
     private boolean successful;
-    
+
+    private boolean maxAttempts;
+
+    public boolean isMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public void setMaxAttempts(boolean maxAttempts) {
+        this.maxAttempts = maxAttempts;
+    }
+
     public String getError() {
         return error;
     }

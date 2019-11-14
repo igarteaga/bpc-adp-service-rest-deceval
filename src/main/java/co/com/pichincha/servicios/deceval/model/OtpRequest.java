@@ -12,13 +12,23 @@ package co.com.pichincha.servicios.deceval.model;
 public class OtpRequest {
 
     private String id;
-    
+
     private String fullName;
-    
+
     private String email;
-    
+
     private String cellPhone;
-    
+
+    private boolean validateAttempts;
+
+    public boolean getValidateAttempts() {
+        return validateAttempts;
+    }
+
+    public void setValidateAttempts(boolean validateAttempts) {
+        this.validateAttempts = validateAttempts;
+    }
+
     public String getId() {
         return id;
     }

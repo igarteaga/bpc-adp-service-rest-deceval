@@ -68,7 +68,7 @@ public class DecevalController {
             return false;
         }
 
-        if (request.getIdType() == 0) {
+        if (request.getIdType() <= 0) {
             return false;
         }
 
@@ -104,19 +104,19 @@ public class DecevalController {
             return false;
         }
         
-        if (request.getCityAddress() > 0) {
+        if (request.getCityAddress() <= 0) {
             return false;
         }
         
-        if (request.getPersonId() > 0) {
+        if (request.getPersonId() <= 0) {
             return false;
         }
 
-        if(request.getDepartmentAddress()> 0) {
+        if(request.getDepartmentAddress() <= 0) {
             return false;
         }
         
-        if(request.getDepartmentExpedition()> 0) {
+        if(request.getDepartmentExpedition() <= 0) {
             return false;
         }
         
@@ -125,6 +125,10 @@ public class DecevalController {
         }
         
         if(request.getCountryNationality() == null || request.getCountryNationality().equals("")) {
+            return false;
+        }
+        
+         if(request.getCityExpedition() <= 0) {
             return false;
         }
         
