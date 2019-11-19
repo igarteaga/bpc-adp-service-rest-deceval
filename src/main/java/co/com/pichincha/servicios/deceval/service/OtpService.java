@@ -7,11 +7,16 @@ package co.com.pichincha.servicios.deceval.service;
 
 import co.com.pichincha.servicios.deceval.model.OtpRequest;
 import co.com.pichincha.servicios.deceval.model.OtpResponse;
+import co.com.pichincha.servicios.deceval.model.ValidateOtpRequest;
+import co.com.pichincha.servicios.deceval.model.ValidateOtpResponse;
 
 /**
  *
  * @author julgue221
  */
 public interface OtpService {
+    
     public OtpResponse sendOtp(OtpRequest request) throws Exception;
+    
+    public ValidateOtpResponse validateOtp(ValidateOtpRequest request) throws Exception;
 }

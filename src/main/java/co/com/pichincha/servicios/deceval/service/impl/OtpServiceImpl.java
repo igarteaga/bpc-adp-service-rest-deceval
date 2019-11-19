@@ -7,6 +7,8 @@ package co.com.pichincha.servicios.deceval.service.impl;
 
 import co.com.pichincha.servicios.deceval.model.OtpRequest;
 import co.com.pichincha.servicios.deceval.model.OtpResponse;
+import co.com.pichincha.servicios.deceval.model.ValidateOtpRequest;
+import co.com.pichincha.servicios.deceval.model.ValidateOtpResponse;
 import co.com.pichincha.servicios.deceval.service.HttpService;
 import co.com.pichincha.servicios.deceval.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +20,21 @@ import org.springframework.stereotype.Service;
  * @author julgue221
  */
 @Service
-public class OtpServiceImpl implements OtpService{
-    
+public class OtpServiceImpl implements OtpService {
+
     @Value("${service.url.aws.notifier}")
     String urlService;
 
     @Autowired
     HttpService httpService;
-    
-    public OtpResponse sendOtp(OtpRequest request) throws Exception
-    {
-        return httpService.postHttp(OtpResponse.class, request, this.urlService);
+
+    @Override
+    public OtpResponse sendOtp(OtpRequest request) throws Exception {
+        return httpService.postHttp(OtpResponse.class, request, this.urlService + "/sendOtp");
+    }
+
+    @Override
+    public ValidateOtpResponse validateOtp(ValidateOtpRequest request) throws Exception {
+        return httpService.postHttp(ValidateOtpResponse.class, request, this.urlService + "/validateOtp");
     }
 }
