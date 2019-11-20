@@ -118,11 +118,11 @@ public class DecevalController {
             return false;
         }
 
-        if (request.getId() == null || request.getId().equals("")) {
+        if (request.getClient().getIdClient() == null || request.getClient().getIdClient().equals("")) {
             return false;
         }
 
-        if (request.getIdType() <= 0) {
+        if (request.getClient().getIdDocumentType() == null || request.getClient().getIdDocumentType().equals("")) {
             return false;
         }
 
@@ -130,19 +130,19 @@ public class DecevalController {
             return false;
         }
 
-        if (request.getFirstLastName() == null || request.getFirstLastName().equals("")) {
+        if (request.getClient().getNameClient() == null || request.getClient().getNameClient().equals("")) {
             return false;
         }
 
-        if (request.getEmail() == null || request.getEmail().equals("")) {
+        if (request.getClient().getEmail() == null || request.getClient().getEmail().equals("")) {
             return false;
         }
 
-        if (request.getCellPhone() == null || request.getCellPhone().equals("")) {
+        if (request.getClient().getPhoneNumber() == null || request.getClient().getPhoneNumber().equals("")) {
             return false;
         }
 
-        if (request.getRequestNumber() == null || request.getRequestNumber().equals("")) {
+        if (request.getClient().getIdProcess() <= 0) {
             return false;
         }
 
@@ -150,15 +150,15 @@ public class DecevalController {
             return false;
         }
 
-        if (request.getExpeditionDate() == null || request.getExpeditionDate().equals("")) {
+        if (request.getClient().getDocumentDateIssuance() == null || request.getClient().getDocumentDateIssuance().equals("")) {
             return false;
         }
 
-        if (request.getBirthDate() == null || request.getBirthDate().equals("")) {
+        if (request.getClient().getDateBirthday() == null || request.getClient().getDateBirthday().equals("")) {
             return false;
         }
 
-        if (request.getCityAddress() <= 0) {
+        if (request.getClient().getResidenceCity() == null || request.getClient().getResidenceCity().equals("")) {
             return false;
         }
 
@@ -166,11 +166,11 @@ public class DecevalController {
             return false;
         }
 
-        if (request.getDepartmentAddress() <= 0) {
+        if (request.getClient().getResidenceState() == null || request.getClient().getResidenceState().equals("")) {
             return false;
         }
 
-        if (request.getDepartmentExpedition() <= 0) {
+        if (request.getClient().getDocumentIssuePlaceState() == null || request.getClient().getDocumentIssuePlaceState().equals("")) {
             return false;
         }
 
@@ -182,7 +182,7 @@ public class DecevalController {
             return false;
         }
 
-        if (request.getCityExpedition() <= 0) {
+        if (request.getClient().getDocumentIssuePlaceCity() == null || request.getClient().getDocumentIssuePlaceCity().equals("")) {
             return false;
         }
 

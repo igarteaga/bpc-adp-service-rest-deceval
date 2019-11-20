@@ -15,6 +15,7 @@ import co.com.pichincha.servicios.deceval.model.PromissoryNoteResponse;
 import co.com.pichincha.servicios.deceval.model.PromissoryNoteVariable;
 import co.com.pichincha.servicios.deceval.model.SpinnerResponse;
 import co.com.pichincha.servicios.deceval.model.SpinnerVariable;
+import co.com.pichincha.servicios.deceval.service.ClientService;
 import co.com.pichincha.servicios.deceval.service.DecevalService;
 import co.com.pichincha.servicios.deceval.service.OtpService;
 import co.com.pichincha.servicios.deceval.service.PromissoryNoteService;
@@ -109,6 +110,9 @@ public class DecevalServiceImpl implements DecevalService {
     @Autowired
     OtpService otpService;
 
+    @Autowired
+    ClientService clientService;
+
     public DecevalResponse decevalCreate(DecevalRequest request) throws Exception {
         DecevalResponse decevalResponse = new DecevalResponse();
         PromissoryNoteResponse noteResponse = null;
@@ -135,6 +139,8 @@ public class DecevalServiceImpl implements DecevalService {
             } else {
                 decevalResponse.setIdPromissoryNote(noteResponse.getIdPromissoryNote());
                 decevalResponse.setSpinnerNumber(spinnerResponse.getSpinnerNumber());
+                request.getClient().setSpinnerNumber(Integer.toString(spinnerResponse.getSpinnerNumber()));
+                request.getClient().setIdDocumentPayment(noteResponse.getIdPromissoryNote());
             }
         } else {
             msmError = msmError == null || msmError.equals("") ? "Service response promissory note invalid" : msmError;
@@ -144,16 +150,22 @@ public class DecevalServiceImpl implements DecevalService {
         if (msmError == null || msmError.equals("")) {
             // Consumir servicio OTP
             OtpRequest otpRequest = new OtpRequest();
-            otpRequest.setCellPhone(request.getCellPhone());
-            otpRequest.setEmail(request.getEmail());
+            otpRequest.setCellPhone(Long.toString(request.getClient().getPhoneNumber()));
+            otpRequest.setEmail(request.getClient().getEmail());
             otpRequest.setFullName(request.getNames());
-            otpRequest.setId(request.getId());
+            otpRequest.setId(Long.toString(request.getClient().getIdClient()));
             otpRequest.setValidateAttempts(true);
             OtpResponse otpResponse = otpService.sendOtp(otpRequest);
             if (otpResponse != null) {
                 if ((otpResponse.getError() == null || otpResponse.getError().equals("")) && otpResponse.isSuccessful()) {
-                    //Guardar respuesta correcta
                     decevalResponse.setResult("OK");
+                    //Guardar respuesta correcta
+                    try {
+                        clientService.saveClient(request.getClient());
+                    } catch (Exception e) {
+                        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, e.getMessage());
+                    }
+
                 } else {
                     decevalResponse.setResult(otpResponse.getError());
                 }
@@ -183,27 +195,28 @@ public class DecevalServiceImpl implements DecevalService {
             flowVariables.setSeccion(spinnerSection);
             SpinnerVariable variable = new SpinnerVariable();
 
-            variable.setCorreoElectronico(decevalRequest.getEmail());
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            variable.setCorreoElectronico(decevalRequest.getClient().getEmail());
             variable.setEstadoCivil(decevalRequest.getCivilStatus());
-            variable.setFechaExpedicion_Nat(decevalRequest.getExpeditionDate());
-            variable.setFechaNacimiento_Nat(decevalRequest.getBirthDate());
-            variable.setFkIdCiudadDomicilio_Nat(decevalRequest.getCityAddress());
-            variable.setFkIdCiudadExpedicion_Nat(decevalRequest.getCityExpedition());
+            variable.setFechaExpedicion_Nat(formatter.format(decevalRequest.getClient().getDocumentDateIssuance()));
+            variable.setFechaNacimiento_Nat(formatter.format(decevalRequest.getClient().getDateBirthday()));
+            variable.setFkIdCiudadDomicilio_Nat(Integer.parseInt(decevalRequest.getClient().getResidenceCity()));
+            variable.setFkIdCiudadExpedicion_Nat(Integer.parseInt(decevalRequest.getClient().getDocumentIssuePlaceCity()));
             variable.setFkIdClasePersona(decevalRequest.getPersonId());
-            variable.setFkIdDepartamentoDomicilio_Nat(decevalRequest.getDepartmentAddress());
-            variable.setFkIdDepartamentoExpedicion_Nat(decevalRequest.getDepartmentExpedition());
+            variable.setFkIdDepartamentoDomicilio_Nat(Short.parseShort(decevalRequest.getClient().getResidenceState()));
+            variable.setFkIdDepartamentoExpedicion_Nat(Short.parseShort(decevalRequest.getClient().getDocumentIssuePlaceState()));
             variable.setFkIdPaisDomicilio_Nat(decevalRequest.getCountryAddress());
             variable.setFkIdPaisExpedicion_Nat(decevalRequest.getCountryExpedition());
             variable.setFkIdPaisNacionalidad_Nat(decevalRequest.getCountryNationality());
-            variable.setFkIdTipoDocumento(decevalRequest.getIdType());
+            variable.setFkIdTipoDocumento(Short.parseShort(decevalRequest.getClient().getIdDocumentType()));
             variable.setIdentificacionEmisor(decevalRequest.getIssuerId() == null || decevalRequest.getIssuerId().equals("") ? pichinchaIssuerId : decevalRequest.getIssuerId());
-            variable.setNumeroCelular(decevalRequest.getCellPhone());
+            variable.setNumeroCelular(Long.toString(decevalRequest.getClient().getPhoneNumber()));
             variable.setNombresNat_Nat(decevalRequest.getNames());
-            variable.setNumeroDocumento(decevalRequest.getId());
+            variable.setNumeroDocumento(Long.toString(decevalRequest.getClient().getIdClient()));
             variable.setPensionado(decevalRequest.getPensioner());
-            variable.setPrimerApellido_Nat(decevalRequest.getFirstLastName());
-            variable.setSalario(decevalRequest.getSalary());
-            variable.setSegundoApellido_Nat(decevalRequest.getSecondLastName());
+            variable.setPrimerApellido_Nat(decevalRequest.getClient().getLastNameClient());
+            variable.setSalario(decevalRequest.getClient().getMonthlyIncome());
+            variable.setSegundoApellido_Nat(decevalRequest.getClient().getSecondLastNameClient());
             variable.setTiempoServicio(decevalRequest.getTimeService());
 
             flowVariables.setVariable(variable);
@@ -237,10 +250,10 @@ public class DecevalServiceImpl implements DecevalService {
             variable.setIdClaseDefinicionDocumento(promissoryNoteClassDefinitionDocument);
             variable.setFechaGrabacionPagare(now);
             variable.setTipoPagare(promissoryNoteTypeIWillPay);
-            variable.setNumPagareEntidad(decevalRequest.getRequestNumber());
+            variable.setNumPagareEntidad(Long.toString(decevalRequest.getClient().getIdProcess()));
             variable.setFechaDesembolso(now);
-            variable.setOtorganteTipoId(decevalRequest.getIdType());
-            variable.setOtorganteNumId(decevalRequest.getId());
+            variable.setOtorganteTipoId(Short.parseShort(decevalRequest.getClient().getIdDocumentType()));
+            variable.setOtorganteNumId(Long.toString(decevalRequest.getClient().getIdClient()));
             variable.setOtorganteCuenta(spinnerResponse.getSpinnerNumber());
             variable.setCreditoReembolsableEn(promissoryNoteRefundableCredit);
             variable.setValorPesosDesembolso(promissoryNoteValuePesosDisbursement);
@@ -252,8 +265,8 @@ public class DecevalServiceImpl implements DecevalService {
             variable.setNombreArchivo(promissoryNoteFileName);
             variable.setContenido(promissoryNoteContent);
             variable.setPais(promissoryNoteCountry);
-            variable.setDepartamento(decevalRequest.getDepartmentAddress());
-            variable.setCiudadDesembolso(decevalRequest.getCityAddress());
+            variable.setDepartamento(Integer.parseInt(decevalRequest.getClient().getResidenceState()));
+            variable.setCiudadDesembolso(Integer.parseInt(decevalRequest.getClient().getResidenceCity()));
 
             flowVariables.setVariable(variable);
 

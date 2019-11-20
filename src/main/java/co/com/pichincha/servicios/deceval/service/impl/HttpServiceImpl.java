@@ -62,7 +62,7 @@ public class HttpServiceImpl implements HttpService {
 
         ResponseEntity<U> response = null; 
         response = new RestTemplate().postForEntity(urlService, entity, cls);
-        if (response.getStatusCode() == HttpStatus.OK) {
+        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
             return response.getBody();
         } else {
             String msm = "Service response " + urlService + ", " + cls.getName() + "; Status: " + response.getStatusCode() + "; Error: " + response.getBody();
